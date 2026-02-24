@@ -9,40 +9,29 @@ The application is designed to be highly modular, with clear separation between 
 When a user executes the `/ask-data` slash command, the following pipeline occurs:
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant Slack
-    participant App as app.js (Bolt)
-    participant Cache as cache.js
-    participant LLM as nlToSql.js (LangChain)
-    participant DB as database.js (Postgres)
-    participant UI as formatter.js
+flowchart TD
+    User([User]) -->|/ask-data| SlackApp[Slack Workspace]
+    SlackApp -->|Event Payload| Controller[app.js Controller]
     
-    User->>Slack: /ask-data show revenue by region
-    Slack->>App: POST /slack/events payload
-    App->>Slack: HTTP 200 OK (Acknowledge)
-    
-    App->>Cache: Check for cached question
-    
-    alt Cache Hit
-        Cache-->>App: Return cached rows & fields
-    else Cache Miss
-        App->>LLM: generateSql("show revenue by region")
-        note right of LLM: Prompt includes schema <br/> Calls gpt-4o-mini
-        LLM-->>App: Return "SELECT region, SUM(revenue)..."
+    subgraph Application Core
+        Controller <-->|Check & Set| Cache[(Node Cache)]
+        Controller -->|Translate Query| NL2SQL[LangChain Service]
+        NL2SQL <-->|Prompt + Schema| OpenAI[OpenAI API]
         
-        App->>DB: validateSql() & executeQuery(sql)
-        DB-->>App: Return query rows
-        
-        App->>Cache: Store results
+        Controller -->|Validate Query| Validator[SQL Validator]
+        Controller -->|Execute SQL| DBService[Database Service]
+        DBService <-->|pg connection| Postgres[(PostgreSQL DB)]
     end
     
-    App->>UI: formatResultsForSlack(rows)
-    note right of UI: Generates Chart URL <br/> Generates Block Kit text
-    UI-->>App: Return Block Kit JSON
+    subgraph Presentation Layer
+        Controller -->|Format UI| Formatter[Block Kit Formatter]
+        Formatter -->|Generate Chart| Chart[QuickChart API]
+        Controller -->|Export/Convert| CSV[CSV Generator]
+    end
     
-    App->>Slack: respond(blocks payload)
-    Slack-->>User: Displays message + Chart + CSV Button
+    Formatter -->|JSON Payload| Controller
+    Controller -->|Message + File| SlackApp
+    SlackApp -->|Display Results| User
 ```
 
 ---
