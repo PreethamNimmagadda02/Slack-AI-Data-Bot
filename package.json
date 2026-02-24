@@ -1,0 +1,28 @@
+{
+  "name": "slack-data-bot",
+  "version": "1.0.0",
+  "description": "Slack AI Data Bot - NL to SQL powered by LangChain",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "db:setup": "node db/setup.js"
+  },
+  "keywords": [
+    "slack",
+    "langchain",
+    "nl2sql",
+    "postgres"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@langchain/core": "^0.3.0",
+    "@langchain/openai": "^0.3.0",
+    "@slack/bolt": "^4.1.0",
+    "dotenv": "^16.4.0",
+    "json2csv": "^6.0.0-alpha.2",
+    "langchain": "^0.3.0",
+    "node-cache": "^5.1.2",
+    "pg": "^8.13.0"
+  }
+}
