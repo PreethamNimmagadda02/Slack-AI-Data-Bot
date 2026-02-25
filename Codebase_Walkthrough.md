@@ -1,6 +1,6 @@
 # Comprehensive Codebase Walkthrough
 
-Welcome to the deep dive into the **Slack AI Data Bot** codebase! This document is written to help you, as a developer, understand exactly how the different pieces of the app fit together, step-by-step, from the moment a user types a message in Slack to the moment they get a chart and table back.
+Welcome to the deep dive into the **Slack AI Data Bot** codebase! This document is written to help you, understand exactly how the different pieces of the app fit together, step-by-step, from the moment a user types a message in Slack to the moment they get a chart and table back.
 
 ---
 
