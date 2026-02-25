@@ -38,4 +38,25 @@ async function closePool() {
     await pool.end();
 }
 
-module.exports = { executeQuery, closePool };
+/**
+ * Get the schema (columns and types) for a specified table.
+ * @param {string} tableName - The name of the table
+ * @returns {Promise<string>} - Formatted string representing the table schema
+ */
+async function getTableSchema(tableName) {
+    const { rows } = await executeQuery(`
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_name = '${tableName}' AND table_schema = 'public'
+    `);
+
+    if (rows.length === 0) {
+        throw new Error(`Table ${tableName} not found in public schema.`);
+    }
+
+    const columns = rows.map(r => `  - ${r.column_name.padEnd(15)} (${r.data_type})`).join('\n');
+    return `Table: public.${tableName}\nColumns:\n${columns}`;
+}
+
+module.exports = { executeQuery, closePool, getTableSchema };
+

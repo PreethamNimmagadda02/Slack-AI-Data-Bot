@@ -6,17 +6,11 @@
 const { ChatOpenAI } = require('@langchain/openai');
 const { ChatPromptTemplate } = require('@langchain/core/prompts');
 const { StringOutputParser } = require('@langchain/core/output_parsers');
+const { getTableSchema } = require('./database');
 
-const SYSTEM_PROMPT = `You are a SQL expert. You have access to a PostgreSQL database with the following table:
+const SYSTEM_PROMPT_TEMPLATE = `You are a SQL expert. You have access to a PostgreSQL database with the following table schema:
 
-Table: public.sales_daily
-Columns:
-  - date        (date)         — The date of the sales record
-  - region      (text)         — Geographic region: North, South, East, West
-  - category    (text)         — Product category: Electronics, Grocery, Fashion
-  - revenue     (numeric)      — Revenue amount in dollars
-  - orders      (integer)      — Number of orders
-  - created_at  (timestamptz)  — Row creation timestamp
+{schema}
 
 Primary Key: (date, region, category)
 
@@ -35,7 +29,7 @@ const model = new ChatOpenAI({
 });
 
 const prompt = ChatPromptTemplate.fromMessages([
-    ['system', SYSTEM_PROMPT],
+    ['system', SYSTEM_PROMPT_TEMPLATE],
     ['human', '{question}'],
 ]);
 
@@ -47,7 +41,11 @@ const chain = prompt.pipe(model).pipe(new StringOutputParser());
  * @returns {Promise<string>} - A single SQL SELECT statement
  */
 async function generateSql(question) {
-    const sql = await chain.invoke({ question });
+    const schema = await getTableSchema('sales_daily');
+    const sql = await chain.invoke({
+        schema: schema,
+        question: question
+    });
     return sql.trim();
 }
 
