@@ -1,6 +1,6 @@
 # Slack AI Data Bot 📊⚡
 
-A Slack Bolt application that allows users to ask natural language questions about their data and instantly receive database results, charts, and CSV exports directly in Slack.
+A Slack Bot application that allows users to ask natural language questions about their data and instantly receive database results, charts, and CSV exports directly in Slack.
 
 ## Features
 
